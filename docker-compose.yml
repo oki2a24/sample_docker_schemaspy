@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  db:
+    image: mysql:8.0.19
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - ./mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+
+  schemaspy:
+    image: schemaspy/schemaspy:6.1.0
+    volumes:
+      - ./schemaspy/drivers:/drivers
+      - ./schemaspy/output:/output
+    command: >
+      java -jar schemaspy.jar
+      -t mysql
+      -dp /drivers
+      -host db
+      -port 3306
+      -db ${DB_DATABASE}
+      -u ${DB_USER}
+      -p ${DB_PASSWORD}
+      -s ${DB_DATABASE}
+      -connprops useSSL\\=false
